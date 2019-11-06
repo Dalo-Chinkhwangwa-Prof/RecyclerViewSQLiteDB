@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MyListProject</string>
+    <string name="luxury_nhotel_groups_title">Luxury\nHotel Groups</string>
+    <string name="check_in_text">Check In</string>
+</resources>

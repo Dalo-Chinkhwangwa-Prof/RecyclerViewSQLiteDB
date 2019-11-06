@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_color">
+
+    <TextView
+        android:id="@+id/room_number_tetview"
+        style="@style/HotelHeader"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guest_name_textview"
+        app:layout_constraintHorizontal_weight=".15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="332" />
+
+    <TextView
+        android:id="@+id/guest_name_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight=".85"
+        app:layout_constraintStart_toEndOf="@id/room_number_tetview"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Guest Name" />
+
+    <TextView
+        android:id="@+id/price_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/room_number_tetview"
+        app:layout_constraintTop_toBottomOf="@id/guest_name_textview"
+        tools:text="Price Paid" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
