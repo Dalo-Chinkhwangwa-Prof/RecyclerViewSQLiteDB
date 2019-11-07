@@ -1,32 +1,46 @@
 package com.example.mylistproject.view
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mylistproject.R
 import com.example.mylistproject.adapter.GuestAdapter
+import com.example.mylistproject.adapter.GuestRAdapter
+import com.example.mylistproject.database.MyDatabaseHelper
 import com.example.mylistproject.model.Guest
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 
 class MainActivity : AppCompatActivity(), GuestAdapter.GuestAdapterDelegate {
 
     private val fileName = "MyGuestList.txt"
     private var guestList = mutableListOf<Guest>()
+    private lateinit var myDatabaseHelper: MyDatabaseHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val itemDecoration = DividerItemDecoration(this, VERTICAL)
+        hotel_list_view.addItemDecoration(itemDecoration)
+
+        myDatabaseHelper = MyDatabaseHelper(this)
 
         check_in_button.setOnClickListener { _ ->
-            writeToFile()
+            //            writeToFile()
+            saveToDatabase()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        readFromDatabase()
     }
 
     private fun writeToFile() {
@@ -65,8 +79,7 @@ class MainActivity : AppCompatActivity(), GuestAdapter.GuestAdapterDelegate {
             }
         }
 
-        val myBaseAdapter = GuestAdapter(guestList, this)
-        hotel_list_view.adapter = myBaseAdapter
+        displayUsers()
     }
 
     private fun clearFields() {
@@ -75,8 +88,21 @@ class MainActivity : AppCompatActivity(), GuestAdapter.GuestAdapterDelegate {
         price_edit_text.text.clear()
     }
 
+    private fun displayUsers() {
+//        with BaseAdapter and ListView
+//        val myBaseAdapter = GuestAdapter(guestList, this)
+//        hotel_list_view.adapter = myBaseAdapter
+
+//        With a RecyclerViewAdapter and ListView
+        val recyclerAdapter = GuestRAdapter(guestList)
+        hotel_list_view.adapter = recyclerAdapter
+        val layoutMgr = LinearLayoutManager(this)
+        hotel_list_view.layoutManager = layoutMgr
+
+    }
+
     override fun deleteBooking(guestPosition: Int) {
-        deleteItem(guestPosition)
+        //deleteItem(guestPosition)
     }
 
     private fun deleteItem(position: Int) {
@@ -96,5 +122,46 @@ class MainActivity : AppCompatActivity(), GuestAdapter.GuestAdapterDelegate {
         readFromExternal()
     }
 
+    private fun saveToDatabase() {
+        val guestName = name_edittext.text.toString()
+        val guestRoom = room_number_edit_text.text.toString()
+        val roomPrice = price_edit_text.text.toString()
+        val newGuest = Guest(guestName, Integer.parseInt(guestRoom), Integer.parseInt(roomPrice))
+        myDatabaseHelper.insertGuest(newGuest)
+        Toast.makeText(this, "Guest added to database.", Toast.LENGTH_SHORT).show()
+        clearFields()
+        readFromDatabase()
+    }
+
+    private fun readFromDatabase() {
+        guestList = mutableListOf()
+
+        val cursor = myDatabaseHelper.readAllGuests()
+        cursor.moveToFirst()
+
+        if (cursor.count > 0) {
+            val guest = Guest(
+                cursor.getString(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_NAME)),
+                cursor.getInt(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_ROOMNUMBER)),
+                cursor.getInt(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_PRICE))
+            )
+            guestList.add(guest)
+        }
+        while (cursor.moveToNext()) {
+            val guestName = cursor.getString(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_NAME))
+            val guestRoom =
+                cursor.getString(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_ROOMNUMBER))
+            val roomPrice = cursor.getInt(cursor.getColumnIndex(MyDatabaseHelper.COLUMN_PRICE))
+            val readGuest = Guest(guestName, Integer.parseInt(guestRoom), roomPrice)
+            guestList.add(readGuest)
+        }
+        displayUsers()
+        getTotalPrice()
+    }
+
+    private fun getTotalPrice() {
+        Toast.makeText(this, myDatabaseHelper.getTotalPrice().toString(), Toast.LENGTH_SHORT).show()
+        Log.d("TAG_X", myDatabaseHelper.getTotalPrice().toString())
+    }
 
 }
